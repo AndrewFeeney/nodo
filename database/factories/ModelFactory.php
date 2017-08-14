@@ -12,7 +12,7 @@
 */
 
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
-$factory->define(App\User::class, function (Faker\Generator $faker) {
+$factory->define(App\Models\User::class, function (Faker\Generator $faker) {
     static $password;
 
     return [
@@ -20,5 +20,28 @@ $factory->define(App\User::class, function (Faker\Generator $faker) {
         'email' => $faker->unique()->safeEmail,
         'password' => $password ?: $password = bcrypt('secret'),
         'remember_token' => str_random(10),
+    ];
+});
+
+$factory->define(App\Models\Task::class, function (Faker\Generator $faker) {
+    return [
+        'name' => $faker->name,
+        'description' => $faker->paragraph(),
+        'due_date' => $faker->date(),
+        'created_by' => function() {
+            return factory(App\Models\User::class)->create()->id;
+        },
+    ];
+});
+
+$factory->state(App\Models\Task::class, 'incomplete', function (Faker\Generator $faker) {
+    return [
+        'completed_at' => null,
+    ];
+});
+
+$factory->state(App\Models\Task::class, 'complete', function (Faker\Generator $faker) {
+    return [
+        'completed_at' => $faker->datetime(),
     ];
 });
